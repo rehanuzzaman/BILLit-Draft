@@ -1,24 +1,28 @@
 <?php
-// app/Models/GstBill.php
+// app/Models/VatInvoice.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; // <-- Import the trait
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class GstBill extends Model
+class VatInvoice extends Model
 {
-    use SoftDeletes; // <-- Use the trait
+    use SoftDeletes;
 
-    protected $table = "gst_bills";
+    protected $table = "vat_invoices"; // <-- Renamed table
     protected $primaryKey = "id";
 
-    // The $fillable property is correct.
     protected $fillable = [
-        "party_id", "invoice_date", "invoice_no", "item_description",
-        "total_amount", "total_amount_usd", "cgst_rate", "sgst_rate",
-        "igst_rate", "cgst_amount", "sgst_amount", "igst_amount",
-        "tax_amount", "net_amount", "declaration",
+        "party_id",
+        "invoice_date",
+        "invoice_no",
+        "item_description",
+        "total_amount",
+        "vat_rate",       // <-- Updated
+        "vat_amount",     // <-- Updated
+        "net_amount",
+        "declaration",
     ];
 
     public function party()

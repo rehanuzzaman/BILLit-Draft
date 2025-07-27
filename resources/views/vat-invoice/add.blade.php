@@ -1,35 +1,31 @@
-{{-- resources/views/gst-bill/add.blade.php --}}
+{{-- resources/views/vat-invoice/add.blade.php --}}
 @extends('layout.app')
 
 @section('content')
 <div class="container-fluid">
-
-    <!-- start page title -->
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title font-weight-bold"> CREATE GST BILL </h4>
+                <h4 class="page-title font-weight-bold text-uppercase"> Create VAT Invoice </h4>
             </div>
         </div>
     </div>
-    <!-- end page title -->
 
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <!--Include alert file-->
                     @include('include.alert')
 
                     <h4 class="header-title text-uppercase">Invoice Basic Info</h4>
                     <hr>
-                    <form action="{{ route('create-gst-bill') }}" method="post">
+                    <form action="{{ route('create-vat-invoice') }}" method="post">
                         @csrf
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label>Party</label>
-                                    <select class="form-control border-bottom" required name="party_id" id="validationCustom01">
+                                    <select class="form-control border-bottom" required name="party_id">
                                         <option value="">Please select</option>
                                         @foreach($parties as $party)
                                         <option value="{{ $party->id }}">{{ $party->full_name }}</option>
@@ -37,88 +33,46 @@
                                     </select>
                                 </div>
                             </div>
-
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label>Invoice Date</label>
-                                    <input type="date" required name="invoice_date" class="form-control border-bottom" id="validationCustom02" value="{{ date('Y-m-d') }}">
+                                    <input type="date" required name="invoice_date" class="form-control border-bottom" value="{{ date('Y-m-d') }}">
                                 </div>
                             </div>
-
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label>Invoice Number</label>
-                                    <input type="text" required value="{{ $invoice_no }}" name="invoice_no" class="form-control border-bottom" id="validationCustom02" placeholder="Enter Invoice number">
+                                    <input type="text" required value="{{ $invoice_no }}" name="invoice_no" class="form-control border-bottom" placeholder="Enter Invoice number">
                                 </div>
                             </div>
                         </div>
 
+                        <h4 class="header-title text-uppercase mt-3">Item Details</h4>
+                        <hr>
                         <div class="row">
-                            <div class="col-12">
-                                <h4 class="header-title text-uppercase">Item Details</h4>
-                                <hr>
-                            </div>
+                            <div class="col-md-8 border p-1 text-center"><b>DESCRIPTIONS</b></div>
+                            <div class="col-md-4 border p-1 text-center"><b>TOTAL AMOUNT (BDT)</b></div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6 border p-1 text-center">
-                                <b>DESCRIPTIONS</b>
-                            </div>
-                            <div class="col-md-3 border p-1 text-center">
-                                <b>TOTAL AMOUNT (INR)</b>
-                            </div>
-                            <div class="col-md-3 border p-1 text-center">
-                                <b>TOTAL AMOUNT (USD)</b>
-                            </div>
-                        </div>
-
                         <div class="row mb-3">
-                            <div class="col-md-6 border p-2">
-                                <input class="form-control" required name="item_description" placeholder="Enter description" />
+                            <div class="col-md-8 border p-2">
+                                <textarea class="form-control" required name="item_description" placeholder="Enter description"></textarea>
                             </div>
-                            <div class="col-md-3 border p-2">
-                                <input class="form-control" required type="text" name="total_amount" id="totalAmountInput" placeholder="Enter INR amount" oninput="calculateNetAmount()">
-                            </div>
-                            <div class="col-md-3 border p-2">
-                                <input class="form-control" type="text" name="total_amount_usd" placeholder="Enter USD amount" />
+                            <div class="col-md-4 border p-2">
+                                <input class="form-control" required type="number" step="0.01" name="total_amount" id="totalAmountInput" placeholder="Enter BDT amount" oninput="calculateNetAmount()">
                             </div>
                         </div>
 
-                        <div class="row mt-0">
-                            <div class="col-md-3">
-                                <label>CGST (%)</label>
-                                <input type="text" class="form-control border-bottom" placeholder="CGST Rate" name="cgst_rate" id="cgst" oninput="calculateNetAmount()">
-                                <span class="float-right gststyle" id="cgstDisplay">0.00</span>
-                                <input type="hidden" id="cgstAmount" name="cgst_amount" value="0">
+                        <div class="row mt-2">
+                            <div class="col-md-9">
+                                <label>VAT (%)</label>
+                                <input type="number" step="0.01" class="form-control border-bottom" placeholder="VAT Rate" name="vat_rate" id="vatRate" oninput="calculateNetAmount()">
                             </div>
-
                             <div class="col-md-3">
-                                <label>SGST (%)</label>
-                                <input type="text" class="form-control border-bottom" placeholder="SGST Rate" name="sgst_rate" id="sgst" oninput="calculateNetAmount()">
-                                <span class="float-right gststyle" id="sgstDisplay">0.00</span>
-                                <input type="hidden" id="sgstAmount" name="sgst_amount" value="0">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label>IGST (%)</label>
-                                <input type="text" class="form-control border-bottom" placeholder="IGST Rate" name="igst_rate" id="igst" oninput="calculateNetAmount()">
-                                <span class="float-right gststyle" id="igstDisplay">0.00</span>
-                                <input type="hidden" id="igstAmount" name="igst_amount" value="0">
-                            </div>
-
-                            <div class="col-md-3">
-                                <ul style="list-style: none;float: right;">
-                                    <li>
-                                        <b>Total Amount:</b> ₹ <span id="totalAmountDisplay">0.00</span>
-                                    </li>
-                                    <li>
-                                        <b>Tax:</b> ₹ <span id="taxDisplay">0.00</span>
-                                        <input type="hidden" value="0" name="tax_amount" id="taxAmount">
-                                    </li>
-                                    <li>
-                                        <b>Net Amount:</b> ₹ <span id="netAmountDisplay">0.00</span>
-                                        <input type="hidden" value="0" name="net_amount" id="netAmount">
-                                    </li>
+                                <ul style="list-style: none; float: right; padding-left: 0;">
+                                    <li><b>Subtotal:</b> ৳ <span id="totalAmountDisplay">0.00</span></li>
+                                    <li><b>VAT:</b> ৳ <span id="taxDisplay">0.00</span><input type="hidden" value="0" name="vat_amount" id="vatAmount"></li>
+                                    <hr>
+                                    <li><b>Net Amount:</b> ৳ <span id="netAmountDisplay">0.00</span><input type="hidden" value="0" name="net_amount" id="netAmount"></li>
                                 </ul>
                             </div>
                         </div>
@@ -126,9 +80,8 @@
                         <div class="row mt-3">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <input type="text" name="declaration" class="form-control border-bottom" id="validationCustom05" placeholder="Declaration">
+                                    <input type="text" name="declaration" class="form-control border-bottom" placeholder="Declaration">
                                 </div>
-
                                 <button type="submit" class="btn btn-primary float-right mb-2">SUBMIT</button>
                             </div>
                         </div>
@@ -144,35 +97,19 @@
 <script>
     function calculateNetAmount() {
         const totalAmountInput = document.getElementById('totalAmountInput');
-        const cgstInput = document.getElementById('cgst');
-        const sgstInput = document.getElementById('sgst');
-        const igstInput = document.getElementById('igst');
+        const vatRateInput = document.getElementById('vatRate');
 
         const totalAmount = parseFloat(totalAmountInput.value) || 0;
-        const cgstRate = parseFloat(cgstInput.value) || 0;
-        const sgstRate = parseFloat(sgstInput.value) || 0;
-        const igstRate = parseFloat(igstInput.value) || 0;
+        const vatRate = parseFloat(vatRateInput.value) || 0;
 
-        const cgstAmount = (totalAmount * cgstRate) / 100;
-        const sgstAmount = (totalAmount * sgstRate) / 100;
-        const igstAmount = (totalAmount * igstRate) / 100;
+        const vatAmount = (totalAmount * vatRate) / 100;
+        const netAmount = totalAmount + vatAmount;
 
-        const totalTax = cgstAmount + sgstAmount + igstAmount;
-        const netAmount = totalAmount + totalTax;
-
-        // Update display spans
-        document.getElementById('cgstDisplay').textContent = cgstAmount.toFixed(2);
-        document.getElementById('sgstDisplay').textContent = sgstAmount.toFixed(2);
-        document.getElementById('igstDisplay').textContent = igstAmount.toFixed(2);
         document.getElementById('totalAmountDisplay').textContent = totalAmount.toFixed(2);
-        document.getElementById('taxDisplay').textContent = totalTax.toFixed(2);
+        document.getElementById('taxDisplay').textContent = vatAmount.toFixed(2);
         document.getElementById('netAmountDisplay').textContent = netAmount.toFixed(2);
 
-        // Update hidden input fields
-        document.getElementById('cgstAmount').value = cgstAmount.toFixed(2);
-        document.getElementById('sgstAmount').value = sgstAmount.toFixed(2);
-        document.getElementById('igstAmount').value = igstAmount.toFixed(2);
-        document.getElementById('taxAmount').value = totalTax.toFixed(2);
+        document.getElementById('vatAmount').value = vatAmount.toFixed(2);
         document.getElementById('netAmount').value = netAmount.toFixed(2);
     }
 </script>
